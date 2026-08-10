@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#EEF1E6">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Growth Daily">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" href="icon.png">
+<title>Growth Daily — Build Your Own Growth Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#EEF1E6;
+    --bg-deep:#E4E9DA;
+    --paper:#FBFAF5;
+    --ink:#1E2A20;
+    --ink-soft:#57634F;
+    --ink-faint:#8B9481;
+    --indigo:#262E4C;
+    --indigo-soft:#4A5177;
+    --gold:#C1832C;
+    --gold-soft:#E7B86B;
+    --green:#3A6047;
+    --green-soft:#7FA184;
+    --line:rgba(30,42,32,0.14);
+    --line-soft:rgba(30,42,32,0.08);
+    --radius:14px;
+    --shadow:0 1px 2px rgba(30,42,32,0.06), 0 8px 24px -12px rgba(30,42,32,0.18);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;overflow-x:hidden;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(193,131,44,0.10), transparent 60%),
+      radial-gradient(900px 500px at 110% 10%, rgba(58,96,71,0.10), transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  img,svg{max-width:100%;}
+  ::selection{background:var(--gold-soft); color:var(--indigo);}
+  .wrap{max-width:960px;margin:0 auto;padding:28px 20px 80px;}
+  .item-name, .meta-bit, .subtitle, .item-tag{overflow-wrap:anywhere;}
+  select, input[type=date], textarea, input[type=text]{max-width:100%;}
+
+  /* ---------- Header ---------- */
+  header.top{margin-bottom:28px;}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--green);font-weight:500;
+    display:flex;align-items:center;gap:8px;
+  }
+  .eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--gold);display:inline-block;}
+  h1.title{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:clamp(26px,4.4vw,40px);
+    line-height:1.1;
+    margin:8px 0 6px;
+    color:var(--indigo);
+    letter-spacing:-0.01em;
+  }
+  .subtitle{color:var(--ink-soft);font-size:14.5px;max-width:60ch;line-height:1.55;}
+  .header-row{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-top:18px;}
+  .header-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .today-badge{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;color:var(--ink-soft);
+    background:var(--paper);border:1px solid var(--line);
+    border-radius:999px;padding:7px 14px;
+    display:flex;align-items:center;gap:8px;
+    box-shadow:var(--shadow);
+  }
+  .streak-pill{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;
+    background:var(--indigo);color:#F3EFE3;
+    border-radius:999px;padding:7px 14px;
+    display:flex;align-items:center;gap:6px;
+    box-shadow:var(--shadow);
+  }
+  .streak-pill b{font-size:14px;}
+  .icon-btn{
+    width:36px;height:36px;border-radius:50%;
+    background:var(--paper);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    color:var(--ink-soft);box-shadow:var(--shadow);
+    transition:all .15s ease;flex:none;
+  }
+  .icon-btn:hover{color:var(--indigo);border-color:var(--ink-faint);}
+  .icon-btn svg{width:17px;height:17px;}
+
+  /* ---------- Tabs ---------- */
+  nav.tabs{
+    display:flex;gap:4px;margin:26px 0 22px;
+    border-bottom:1px solid var(--line);
+    overflow-x:auto;
+    scrollbar-width:none;
+  }
+  nav.tabs::-webkit-scrollbar{display:none;}
+  nav.tabs button{
+    font-family:'Inter',sans-serif;
+    font-size:13.5px;font-weight:600;
+    background:none;border:none;cursor:pointer;
+    color:var(--ink-faint);
+    padding:10px 14px 12px;
+    position:relative;white-space:nowrap;
+    transition:color .15s ease;
+  }
+  nav.tabs button .count{
+    font-family:'IBM Plex Mono',monospace;font-weight:400;
+    font-size:11px;color:var(--ink-faint);margin-left:5px;
+  }
+  nav.tabs button:hover{color:var(--ink);}
+  nav.tabs button.active{color:var(--indigo);}
+  nav.tabs button.active::after{
+    content:"";position:absolute;left:8px;right:8px;bottom:-1px;height:2px;
+    background:var(--gold);border-radius:2px;
+  }
+
+  .panel{display:none;animation:fadein .25s ease;}
+  .panel.active{display:block;}
+  @keyframes fadein{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ---------- Overview ---------- */
+  .overview-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:20px;
+  }
+  @media (max-width:720px){.overview-grid{grid-template-columns:1fr;}}
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+  .rings-card{padding:26px 22px;display:flex;flex-direction:column;align-items:center;gap:14px;}
+  .rings-card svg{width:100%;max-width:270px;height:auto;}
+  .rings-legend{width:100%;display:grid;gap:9px;}
+  .legend-row{display:flex;align-items:center;gap:10px;font-size:13px;}
+  .legend-dot{width:9px;height:9px;border-radius:50%;flex:none;}
+  .legend-label{flex:1;font-weight:600;color:var(--ink);}
+  .legend-val{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-soft);}
+
+  .stats-col{display:flex;flex-direction:column;gap:16px;}
+  .stat-card{padding:18px 20px;}
+  .stat-card .label{
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--ink-faint);margin-bottom:6px;
+  }
+  .stat-card .value{font-family:'Fraunces',serif;font-size:26px;color:var(--indigo);}
+  .stat-card .hint{font-size:12.5px;color:var(--ink-soft);margin-top:4px;}
+
+  .glance-card{padding:20px 22px;grid-column:1/-1;}
+  .glance-card h3{
+    font-family:'Fraunces',serif;font-weight:500;font-size:18px;margin:0 0 4px;color:var(--indigo);
+  }
+  .glance-card .subhint{font-size:12.5px;color:var(--ink-soft);margin-bottom:14px;}
+  .glance-list{display:grid;gap:8px;}
+  .glance-item{
+    display:flex;align-items:center;gap:10px;font-size:13.5px;padding:6px 0;
+    border-bottom:1px solid var(--line-soft);
+  }
+  .glance-item:last-child{border-bottom:none;}
+  .glance-item .gi-name{flex:1;}
+  .glance-item.done .gi-name{color:var(--ink-faint);text-decoration:line-through;}
+  .journal-box{padding:20px 22px;}
+  .journal-box h3{font-family:'Fraunces',serif;font-weight:500;font-size:16px;margin:0 0 10px;color:var(--indigo);}
+  textarea.journal{
+    width:100%;min-height:80px;resize:vertical;
+    font-family:'Inter',sans-serif;font-size:13.5px;color:var(--ink);
+    background:var(--bg);border:1px solid var(--line);border-radius:10px;
+    padding:10px 12px;line-height:1.5;
+  }
+  textarea.journal:focus{outline:2px solid var(--gold-soft);outline-offset:1px;}
+  .save-hint{font-size:11px;color:var(--ink-faint);margin-top:6px;font-family:'IBM Plex Mono',monospace;}
+
+  /* ---------- Level panels ---------- */
+  .level-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px;flex-wrap:wrap;gap:8px;}
+  .level-head h2{font-family:'Fraunces',serif;font-weight:500;font-size:22px;color:var(--indigo);margin:0;}
+  .level-progress{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-soft);}
+
+  .item-card{
+    background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow);
+    transition:border-color .15s ease;
+  }
+  .item-card.done{border-color:rgba(58,96,71,0.35);}
+  .item-top{display:flex;align-items:flex-start;gap:12px;}
+  .check-btn{
+    flex:none;width:24px;height:24px;border-radius:7px;
+    border:1.5px solid var(--ink-faint);background:transparent;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;margin-top:2px;
+    transition:all .15s ease;
+  }
+  .check-btn svg{width:14px;height:14px;opacity:0;transition:opacity .15s ease;}
+  .item-card.done .check-btn{background:var(--green);border-color:var(--green);}
+  .item-card.done .check-btn svg{opacity:1;}
+  .item-main{flex:1;min-width:0;}
+  .item-name-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+  .item-name{font-family:'Fraunces',serif;font-weight:500;font-size:16.5px;color:var(--ink);}
+  .item-card.done .item-name{color:var(--ink-faint);text-decoration:line-through;text-decoration-color:var(--ink-faint);}
+  .item-meta{display:flex;flex-wrap:wrap;gap:14px;margin-top:7px;}
+  .meta-bit{font-size:12.5px;color:var(--ink-soft);display:flex;gap:5px;}
+  .meta-bit .k{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);align-self:center;}
+  .score-row{display:flex;align-items:center;gap:10px;margin-top:12px;}
+  .score-row .k{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);width:66px;flex:none;}
+  input[type=range]{
+    flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;
+    background:linear-gradient(to right, var(--gold) 0%, var(--gold) var(--pct,0%), var(--line) var(--pct,0%), var(--line) 100%);
+    outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+    background:var(--paper);border:2.5px solid var(--gold);cursor:pointer;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:16px;height:16px;border-radius:50%;background:var(--paper);border:2.5px solid var(--gold);cursor:pointer;
+  }
+  .score-val{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--indigo);width:34px;text-align:right;flex:none;}
+
+  .slot-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
+  .slot{
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:500;
+    border:1px solid var(--line);background:var(--bg);color:var(--ink-soft);
+    border-radius:6px;padding:5px 7px;cursor:pointer;line-height:1;
+    transition:all .12s ease;
+  }
+  .slot:hover{border-color:var(--ink-faint);}
+  .slot.current{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset;}
+  .slot.on{background:var(--green);border-color:var(--green);color:#F3EFE3;}
+  .slot.on.current{box-shadow:0 0 0 1px var(--gold);}
+  .slot-grid-quarterly .slot{font-size:12px;padding:7px 12px;}
+
+  .week-picker{
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    background:var(--paper);border:1px solid var(--line);border-radius:12px;
+    padding:12px 16px;margin-bottom:16px;box-shadow:var(--shadow);
+  }
+  .week-picker-field{display:flex;align-items:center;gap:8px;}
+  .week-picker-field .k{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);}
+  .week-picker select{
+    font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);
+    background:var(--bg);border:1px solid var(--line);border-radius:8px;
+    padding:6px 10px;cursor:pointer;
+  }
+  .week-picker select:focus-visible{outline:2px solid var(--gold);}
+  .week-picker .reset-btn{margin-left:auto;}
+  .day-picker-label{
+    font-family:'Fraunces',serif;font-style:italic;font-size:13.5px;color:var(--ink-soft);
+  }
+  .week-picker input[type=date]{
+    font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);
+    background:var(--bg);border:1px solid var(--line);border-radius:8px;
+    padding:5px 9px;cursor:pointer;
+  }
+  .week-picker input[type=date]:focus-visible{outline:2px solid var(--gold);}
+
+  .empty-state{
+    text-align:center;padding:50px 20px;color:var(--ink-soft);
+  }
+  .empty-state .big{font-family:'Fraunces',serif;font-size:19px;color:var(--indigo);margin-bottom:8px;}
+
+  footer.foot{
+    margin-top:44px;padding-top:18px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;
+  }
+  footer.foot p{font-size:11.5px;color:var(--ink-faint);font-family:'IBM Plex Mono',monospace;margin:0;}
+  .reset-btn{
+    font-family:'Inter',sans-serif;font-size:12px;color:var(--ink-soft);
+    background:none;border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer;
+  }
+  .reset-btn:hover{border-color:var(--ink-faint);color:var(--ink);}
+  .foot-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .foot-actions input[type=file]{display:none;}
+
+  .loading{
+    display:flex;align-items:center;gap:10px;color:var(--ink-soft);font-size:13.5px;
+    padding:40px 0;justify-content:center;font-family:'IBM Plex Mono',monospace;
+  }
+  .spinner{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--gold);animation:spin 0.8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  button:focus-visible, .check-btn:focus-visible, input:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+  @media (prefers-reduced-motion: reduce){*{animation:none !important; transition:none !important;}}
+
+  /* ---------- Setup screen ---------- */
+  #setupScreen{max-width:720px;margin:0 auto;padding:36px 20px 90px;}
+  .setup-hero{margin-bottom:30px;}
+  .setup-hero h1{
+    font-family:'Fraunces',serif;font-weight:500;font-size:clamp(26px,4.6vw,38px);
+    color:var(--indigo);margin:8px 0 8px;line-height:1.12;letter-spacing:-0.01em;
+  }
+  .setup-hero p{color:var(--ink-soft);font-size:14.5px;line-height:1.6;max-width:58ch;}
+  .setup-step-label{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--ink-faint);margin:0 0 10px;
+  }
+  .cadence-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:34px;}
+  .cadence-chip{
+    font-family:'Fraunces',serif;font-weight:500;font-size:15px;
+    border:1.5px solid var(--line);background:var(--paper);color:var(--ink-soft);
+    border-radius:12px;padding:14px 18px;cursor:pointer;text-align:left;
+    display:flex;flex-direction:column;gap:2px;min-width:110px;flex:1 1 140px;
+    box-shadow:var(--shadow);transition:all .15s ease;
+  }
+  .cadence-chip .cc-hint{font-family:'Inter',sans-serif;font-weight:400;font-size:11px;color:var(--ink-faint);}
+  .cadence-chip.selected{border-color:var(--green);background:#F2F6EF;color:var(--indigo);}
+  .cadence-chip.selected .cc-hint{color:var(--green);}
+  .cadence-chip:hover{border-color:var(--ink-faint);}
+
+  .setup-section{
+    background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+    padding:22px 22px 24px;margin-bottom:20px;box-shadow:var(--shadow);
+  }
+  .setup-section h2{
+    font-family:'Fraunces',serif;font-weight:500;font-size:19px;color:var(--indigo);margin:0 0 3px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .setup-section .sec-hint{font-size:12.5px;color:var(--ink-soft);margin-bottom:16px;}
+
+  .your-items{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+  .your-items:empty{display:none;}
+  .item-chip{
+    display:flex;align-items:center;gap:8px;
+    background:var(--indigo);color:#F3EFE3;border-radius:999px;
+    padding:7px 8px 7px 14px;font-size:12.5px;font-family:'Inter',sans-serif;font-weight:500;
+  }
+  .item-chip button{
+    background:rgba(255,255,255,0.15);border:none;color:#F3EFE3;
+    width:18px;height:18px;border-radius:50%;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;font-size:13px;line-height:1;
+    flex:none;
+  }
+  .item-chip button:hover{background:rgba(255,255,255,0.3);}
+
+  .suggested-label{font-family:'IBM Plex Mono',monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);margin:2px 0 10px;}
+  .suggested-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+  .pill-btn{
+    font-family:'Inter',sans-serif;font-size:12.5px;font-weight:500;
+    border:1px dashed var(--line);background:var(--bg);color:var(--ink-soft);
+    border-radius:999px;padding:7px 13px;cursor:pointer;transition:all .12s ease;
+  }
+  .pill-btn:hover{border-color:var(--gold);color:var(--indigo);border-style:solid;}
+  .pill-btn::before{content:"+ ";color:var(--gold);}
+
+  .custom-add-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .custom-add-row input[type=text]{
+    font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);
+    background:var(--bg);border:1px solid var(--line);border-radius:8px;
+    padding:9px 12px;flex:1 1 160px;
+  }
+  .custom-add-row input[type=text]:focus-visible{outline:2px solid var(--gold);}
+  .custom-add-row button{
+    font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+    background:var(--green);color:#F3EFE3;border:none;border-radius:8px;
+    padding:9px 16px;cursor:pointer;flex:none;
+  }
+  .custom-add-row button:hover{background:#325640;}
+
+  .setup-footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-top:10px;}
+  .setup-footer .warn{font-size:12.5px;color:var(--ink-soft);}
+  .btn-primary{
+    font-family:'Inter',sans-serif;font-size:14.5px;font-weight:700;
+    background:var(--indigo);color:#F3EFE3;border:none;border-radius:12px;
+    padding:14px 26px;cursor:pointer;box-shadow:var(--shadow);
+    transition:transform .1s ease;
+  }
+  .btn-primary:hover{transform:translateY(-1px);}
+  .btn-primary:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+  .btn-plain{
+    font-family:'Inter',sans-serif;font-size:13px;color:var(--ink-soft);
+    background:none;border:1px solid var(--line);border-radius:10px;
+    padding:12px 18px;cursor:pointer;
+  }
+  .btn-plain:hover{border-color:var(--ink-faint);color:var(--ink);}
+</style>
+</head>
+<body>
+
+<!-- ============ SETUP SCREEN ============ -->
+<div id="setupScreen" style="display:none;">
+  <div class="setup-hero">
+    <div class="eyebrow">Growth Daily</div>
+    <h1>Build your own tracker</h1>
+    <p>Choose which rhythms you want to keep — daily, weekly, monthly, quarterly, annual — then pick from suggested habits or add your own. You can always come back and change this later.</p>
+  </div>
+
+  <div class="setup-step-label">1 · Which rhythms do you want to track?</div>
+  <div class="cadence-row" id="cadenceRow"></div>
+
+  <div id="setupSections"></div>
+
+  <div class="setup-footer">
+    <span class="warn" id="setupWarn"></span>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn-plain" id="setupCancelBtn" style="display:none;">Cancel</button>
+      <button class="btn-primary" id="setupSubmitBtn">Start tracking &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APP SCREEN ============ -->
+<div class="wrap" id="appScreen" style="display:none;">
+
+  <header class="top">
+    <div class="eyebrow">Growth Daily</div>
+    <h1 class="title" id="appTitle">Your Growth Tracker</h1>
+    <p class="subtitle">Tracking the rhythms you chose — check in, score yourself, and watch the pattern build.</p>
+    <div class="header-row">
+      <div id="todayBadge" class="today-badge"></div>
+      <div class="header-actions">
+        <div id="streakPill" class="streak-pill">🔥 <b id="streakNum">0</b>&nbsp;day streak</div>
+        <button class="icon-btn" id="editTrackerBtn" title="Edit your tracker" aria-label="Edit your tracker">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs"></nav>
+
+  <div id="loadingState" class="loading"><span class="spinner"></span> Loading your rhythm…</div>
+  <div id="app" style="display:none;">
+
+    <section class="panel active" id="panel-overview">
+      <div class="overview-grid">
+        <div class="card rings-card">
+          <svg id="ringsSvg" viewBox="0 0 280 280"></svg>
+          <div class="rings-legend" id="ringsLegend"></div>
+        </div>
+        <div class="stats-col">
+          <div class="card stat-card" id="statTodayCard">
+            <div class="label">Today, overall</div>
+            <div class="value" id="statToday">0%</div>
+            <div class="hint" id="statTodayHint">of today's items checked off</div>
+          </div>
+          <div class="card stat-card">
+            <div class="label">Average self-score</div>
+            <div class="value" id="statScore">—</div>
+            <div class="hint">across every item you've scored</div>
+          </div>
+          <div class="card stat-card">
+            <div class="label">Tracked commitments</div>
+            <div class="value" id="statTotal">0</div>
+            <div class="hint" id="statTotalHint">across your active rhythms</div>
+          </div>
+        </div>
+        <div class="card glance-card" id="glanceCard">
+          <h3>Today at a glance</h3>
+          <div class="subhint">Your daily rhythm — check items off as you go through the day.</div>
+          <div class="glance-list" id="glanceList"></div>
+        </div>
+        <div class="card journal-box" id="journalCard" style="grid-column:1/-1;">
+          <h3>Daily Reflection</h3>
+          <textarea class="journal" id="journalToday" placeholder="A few minutes before bed — how did today go?"></textarea>
+          <div class="save-hint" id="journalSaveHint">Autosaves as you type</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-daily"></section>
+    <section class="panel" id="panel-weekly"></section>
+    <section class="panel" id="panel-monthly"></section>
+    <section class="panel" id="panel-quarterly"></section>
+    <section class="panel" id="panel-annual"></section>
+
+  </div>
+
+  <footer class="foot">
+    <p>Saved locally on this device</p>
+    <div class="foot-actions">
+      <button class="reset-btn" id="exportBtn">Export data</button>
+      <button class="reset-btn" id="importBtn">Import data</button>
+      <input type="file" id="importFile" accept="application/json">
+      <button class="reset-btn" id="resetBtn">Reset all progress</button>
+    </div>
+  </footer>
+</div>
+<script>
+/* ==================================================================
+   SUGGESTED ITEMS CATALOG — generic, broadly applicable starting
+   points across health, learning, relationships, finance, and mind.
+   People pick from these or add their own during setup.
+   ================================================================== */
+const SUGGESTED = {
+  daily: [
+    {name:'Morning routine', note:'Start the day intentionally, before checking your phone'},
+    {name:'Exercise / move your body', note:'20–30 minutes, any kind of movement'},
+    {name:'Read', note:'20+ minutes of a book or article'},
+    {name:'Meditate or quiet reflection', note:'5–10 minutes'},
+    {name:'Drink enough water', note:''},
+    {name:'Journal', note:'A few lines about the day'},
+    {name:'Learn something new', note:'One small skill or idea'},
+    {name:'Eat well', note:'Balanced meals, not skipped'},
+    {name:'Sleep on time', note:'Aim for 7–8 hours'},
+    {name:'Gratitude practice', note:'Note 1–3 things you\'re grateful for'},
+    {name:'Limit screen time', note:'Especially social media'},
+    {name:'Deep work block', note:'60–90 minutes, no distractions'},
+  ],
+  weekly: [
+    {name:'Weekly planning & review', note:'Set the week up, then look back at it'},
+    {name:'Exercise 3x this week', note:''},
+    {name:'Connect with a friend or family member', note:''},
+    {name:'Meal prep', note:''},
+    {name:'Declutter or clean a space', note:''},
+    {name:'Dedicated learning session', note:'A course, class, or deep-dive'},
+    {name:'Budget check-in', note:''},
+    {name:'Rest / recovery day', note:'A full day off, on purpose'},
+    {name:'Attend a class, group, or community meeting', note:''},
+    {name:'Review progress on goals', note:''},
+  ],
+  monthly: [
+    {name:'Monthly budget review', note:''},
+    {name:'Self-care / check-up', note:''},
+    {name:'Finish a book', note:''},
+    {name:'Add to savings', note:''},
+    {name:'Skill-building session', note:'A longer, focused push'},
+    {name:'Reach out to a mentor or contact', note:''},
+    {name:'Deep clean or declutter a space', note:''},
+    {name:'Reflect on the month\'s goals', note:''},
+    {name:'Volunteer or give back', note:''},
+    {name:'Plan the month ahead', note:''},
+  ],
+  quarterly: [
+    {name:'Quarterly goal-setting & review', note:''},
+    {name:'Skills or career check-in', note:''},
+    {name:'Financial / portfolio review', note:''},
+    {name:'Health check-up', note:''},
+    {name:'Personal retreat or reset', note:'A day or weekend to step back'},
+    {name:'Review a big project\'s progress', note:''},
+  ],
+  annual: [
+    {name:'Annual goal-setting', note:''},
+    {name:'Full health check-up', note:''},
+    {name:'Take a meaningful trip', note:''},
+    {name:'Annual financial review', note:''},
+    {name:'Pursue a certification or major skill', note:''},
+    {name:'Annual personal retreat', note:''},
+    {name:'Review the year & set intentions', note:''},
+  ],
+};
+
+const LEVELS = [
+  {id:'daily', label:'Daily', hint:'Every day', color:'#C1832C'},
+  {id:'weekly', label:'Weekly', hint:'Every week', color:'#B9793B'},
+  {id:'monthly', label:'Monthly', hint:'Every month', color:'#8C7A4A'},
+  {id:'quarterly', label:'Quarterly', hint:'4x a year', color:'#5C7A56'},
+  {id:'annual', label:'Annual', hint:'Once a year', color:'#3A6047'},
+];
+const LEVEL_ORDER = ['daily','weekly','monthly','quarterly','annual'];
+
+/* ---------------- Date / period helpers ---------------- */
+function pad(n){return n<10?'0'+n:''+n;}
+function todayISO(){const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function shiftDayISO(dayKey, delta){
+  const [y,m,d] = dayKey.split('-').map(Number);
+  const dt = new Date(y, m-1, d);
+  dt.setDate(dt.getDate()+delta);
+  return dt.getFullYear()+'-'+pad(dt.getMonth()+1)+'-'+pad(dt.getDate());
+}
+function formatDayLabel(dayKey){
+  const [y,m,d] = dayKey.split('-').map(Number);
+  const dt = new Date(y, m-1, d);
+  const opts = {weekday:'long', month:'long', day:'numeric', year:'numeric'};
+  return dt.toLocaleDateString('en-US', opts);
+}
+function isoDate(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function isoWeekKey(d){
+  const date=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  const dayNum=(date.getUTCDay()+6)%7;
+  date.setUTCDate(date.getUTCDate()-dayNum+3);
+  const firstThursday=new Date(Date.UTC(date.getUTCFullYear(),0,4));
+  const week=1+Math.round(((date-firstThursday)/86400000-3+((firstThursday.getUTCDay()+6)%7))/7);
+  return date.getUTCFullYear()+'-W'+pad(week);
+}
+function monthKey(d){return d.getFullYear()+'-'+pad(d.getMonth()+1);}
+function quarterKey(d){return d.getFullYear()+'-Q'+(Math.floor(d.getMonth()/3)+1);}
+function yearKey(d){return ''+d.getFullYear();}
+const now = new Date();
+const YEAR = now.getFullYear();
+const PERIOD_KEY = {
+  daily: todayISO(),
+  weekly: isoWeekKey(now),
+  monthly: monthKey(now),
+  quarterly: quarterKey(now),
+  annual: yearKey(now),
+};
+function currentIndexFor(level){
+  if(level==='quarterly') return Math.floor(now.getMonth()/3); // 0-3
+  return 0;
+}
+function slotsFor(level){
+  if(level==='quarterly'){
+    return [0,1,2,3].map(i=>({key:YEAR+'-Q'+(i+1), label:'Q'+(i+1), current:i===Math.floor(now.getMonth()/3)}));
+  }
+  return [{key:PERIOD_KEY[level], label:'', current:true}];
+}
+function mondayOfWeekKey(weekKey){
+  const [yStr, wStr] = weekKey.split('-W');
+  const y = parseInt(yStr,10), w = parseInt(wStr,10);
+  const jan4 = new Date(y,0,4);
+  const jan4Day = (jan4.getDay()+6)%7;
+  const week1Monday = new Date(jan4); week1Monday.setDate(jan4.getDate()-jan4Day);
+  const monday = new Date(week1Monday); monday.setDate(week1Monday.getDate()+(w-1)*7);
+  return monday;
+}
+function shiftWeekKey(weekKey, deltaWeeks){
+  const monday = mondayOfWeekKey(weekKey);
+  monday.setDate(monday.getDate()+deltaWeeks*7);
+  return isoWeekKey(monday);
+}
+function formatWeekLabel(weekKey){
+  const monday = mondayOfWeekKey(weekKey);
+  const sunday = new Date(monday); sunday.setDate(monday.getDate()+6);
+  const startStr = monday.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+  const endStr = sunday.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+  return `${startStr} – ${endStr}`;
+}
+function shiftMonthKey(monthKeyStr, delta){
+  const [y,m] = monthKeyStr.split('-').map(Number);
+  const dt = new Date(y, m-1+delta, 1);
+  return dt.getFullYear()+'-'+pad(dt.getMonth()+1);
+}
+function formatMonthLabel(monthKeyStr){
+  const [y,m] = monthKeyStr.split('-').map(Number);
+  const dt = new Date(y, m-1, 1);
+  return dt.toLocaleDateString('en-US', {month:'long', year:'numeric'});
+}
+function slugify(name){
+  return name.toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'').slice(0,40);
+}
+
+/* ==================================================================
+   STORAGE — config (what the person set up) and state (their
+   check-ins/scores/journal) are kept as two separate localStorage
+   keys, so editing the tracker later never has to touch progress.
+   ================================================================== */
+const CONFIG_KEY = 'growth-tracker-config';
+const STATE_KEY = 'growth-tracker-state';
+
+let config = null;      // { levels:[...], items:[{id,level,name,note}] }
+let ITEMS = [];          // flattened from config.items
+let ACTIVE_LEVELS = [];  // LEVELS filtered to config.levels, in LEVEL_ORDER
+
+let state = { checkins:{daily:{},weekly:{},monthly:{},quarterly:{},annual:{}}, scores:{}, journal:{} };
+let saveTimer = null;
+let selectedWeekKey, selectedMonthKey, selectedDayKey;
+
+function loadConfig(){
+  try{
+    const raw = localStorage.getItem(CONFIG_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(parsed && Array.isArray(parsed.items) && Array.isArray(parsed.levels)){
+        return parsed;
+      }
+    }
+  }catch(e){ /* fall through to null */ }
+  return null;
+}
+function saveConfig(cfg){
+  try{ localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg)); }catch(e){ console.error('Config save failed', e); }
+}
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STATE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      state = Object.assign({checkins:{daily:{},weekly:{},monthly:{},quarterly:{},annual:{}},scores:{},journal:{}}, parsed);
+      for(const lv of LEVEL_ORDER){ if(!state.checkins[lv]) state.checkins[lv] = {}; }
+    }
+  }catch(e){
+    state = { checkins:{daily:{},weekly:{},monthly:{},quarterly:{},annual:{}}, scores:{}, journal:{} };
+  }
+}
+function queueSave(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>{
+    try{ localStorage.setItem(STATE_KEY, JSON.stringify(state)); }catch(e){ console.error('Save failed', e); }
+  }, 350);
+}
+
+/* ==================================================================
+   SETUP SCREEN
+   ================================================================== */
+let draft = { levels: new Set(['daily']), itemsByLevel: {daily:[],weekly:[],monthly:[],quarterly:[],annual:[]} };
+let editingExisting = false;
+
+function initSetup(existingConfig){
+  if(existingConfig){
+    editingExisting = true;
+    draft = { levels: new Set(existingConfig.levels), itemsByLevel: {daily:[],weekly:[],monthly:[],quarterly:[],annual:[]} };
+    existingConfig.items.forEach(it=>{ draft.itemsByLevel[it.level].push({id:it.id, name:it.name, note:it.note||''}); });
+  } else {
+    editingExisting = false;
+    draft = { levels: new Set(['daily']), itemsByLevel: {daily:[],weekly:[],monthly:[],quarterly:[],annual:[]} };
+  }
+  document.getElementById('setupCancelBtn').style.display = editingExisting ? 'inline-block' : 'none';
+  renderSetup();
+}
+
+function renderSetup(){
+  const cadenceRow = document.getElementById('cadenceRow');
+  cadenceRow.innerHTML = LEVELS.map(lv=>`
+    <button type="button" class="cadence-chip ${draft.levels.has(lv.id)?'selected':''}" data-level="${lv.id}">
+      <span>${lv.label}</span>
+      <span class="cc-hint">${lv.hint}</span>
+    </button>
+  `).join('');
+  cadenceRow.querySelectorAll('.cadence-chip').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const lv = btn.dataset.level;
+      if(draft.levels.has(lv)) draft.levels.delete(lv); else draft.levels.add(lv);
+      renderSetup();
+    });
+  });
+
+  const sectionsEl = document.getElementById('setupSections');
+  const activeOrdered = LEVEL_ORDER.filter(lv=>draft.levels.has(lv));
+  sectionsEl.innerHTML = activeOrdered.map(lv=>setupSectionHTML(lv)).join('');
+  activeOrdered.forEach(lv=>attachSetupSectionHandlers(lv));
+
+  const totalItems = Object.values(draft.itemsByLevel).reduce((s,arr)=>s+arr.length,0);
+  const submitBtn = document.getElementById('setupSubmitBtn');
+  const warnEl = document.getElementById('setupWarn');
+  if(activeOrdered.length===0){
+    submitBtn.disabled = true;
+    warnEl.textContent = 'Pick at least one rhythm to track.';
+  } else if(totalItems===0){
+    submitBtn.disabled = true;
+    warnEl.textContent = 'Add at least one item to track.';
+  } else {
+    submitBtn.disabled = false;
+    warnEl.textContent = '';
+  }
+}
+
+function setupSectionHTML(level){
+  const lv = LEVELS.find(l=>l.id===level);
+  const yourItems = draft.itemsByLevel[level];
+  const chosenIds = new Set(yourItems.map(it=>it.id));
+  const suggestions = (SUGGESTED[level]||[]).filter(s=>!chosenIds.has('sugg_'+level+'_'+slugify(s.name)));
+  return `
+    <div class="setup-section" data-level="${level}">
+      <h2>${lv.label}</h2>
+      <div class="sec-hint">${lv.hint} — pick from suggestions or add your own.</div>
+
+      <div class="your-items" data-role="your-items">
+        ${yourItems.map(it=>`
+          <span class="item-chip" data-id="${it.id}">
+            ${it.name}
+            <button type="button" data-role="remove-item" data-id="${it.id}" aria-label="Remove ${it.name}">&times;</button>
+          </span>
+        `).join('')}
+      </div>
+
+      ${suggestions.length ? `
+        <div class="suggested-label">Suggested</div>
+        <div class="suggested-pills" data-role="suggested-pills">
+          ${suggestions.map(s=>`
+            <button type="button" class="pill-btn" data-role="add-suggested" data-name="${s.name.replace(/"/g,'&quot;')}" data-note="${(s.note||'').replace(/"/g,'&quot;')}">${s.name}</button>
+          `).join('')}
+        </div>
+      ` : ''}
+
+      <div class="custom-add-row">
+        <input type="text" data-role="custom-name" placeholder="Add your own item…">
+        <input type="text" data-role="custom-note" placeholder="Note (optional)">
+        <button type="button" data-role="custom-add">Add</button>
+      </div>
+    </div>
+  `;
+}
+
+function attachSetupSectionHandlers(level){
+  const section = document.querySelector(`.setup-section[data-level="${level}"]`);
+  if(!section) return;
+
+  section.querySelectorAll('[data-role="remove-item"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.dataset.id;
+      draft.itemsByLevel[level] = draft.itemsByLevel[level].filter(it=>it.id!==id);
+      renderSetup();
+    });
+  });
+
+  section.querySelectorAll('[data-role="add-suggested"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const name = btn.dataset.name, note = btn.dataset.note;
+      const id = 'sugg_'+level+'_'+slugify(name);
+      if(!draft.itemsByLevel[level].some(it=>it.id===id)){
+        draft.itemsByLevel[level].push({id, name, note});
+      }
+      renderSetup();
+    });
+  });
+
+  const customBtn = section.querySelector('[data-role="custom-add"]');
+  const nameInput = section.querySelector('[data-role="custom-name"]');
+  const noteInput = section.querySelector('[data-role="custom-note"]');
+  function addCustom(){
+    const name = nameInput.value.trim();
+    if(!name) return;
+    const note = noteInput.value.trim();
+    const id = 'custom_'+level+'_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    draft.itemsByLevel[level].push({id, name, note});
+    renderSetup();
+  }
+  customBtn.addEventListener('click', addCustom);
+  [nameInput, noteInput].forEach(inp=>{
+    inp.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); addCustom(); } });
+  });
+}
+
+function submitSetup(){
+  const activeOrdered = LEVEL_ORDER.filter(lv=>draft.levels.has(lv));
+  const items = [];
+  activeOrdered.forEach(lv=>{
+    draft.itemsByLevel[lv].forEach(it=>{
+      items.push({id:it.id, level:lv, name:it.name, note:it.note||''});
+    });
+  });
+  config = { levels: activeOrdered, items };
+  saveConfig(config);
+  document.getElementById('setupScreen').style.display = 'none';
+  document.getElementById('appScreen').style.display = 'block';
+  bootApp();
+}
+
+document.getElementById('setupSubmitBtn').addEventListener('click', submitSetup);
+document.getElementById('setupCancelBtn').addEventListener('click', ()=>{
+  document.getElementById('setupScreen').style.display = 'none';
+  document.getElementById('appScreen').style.display = 'block';
+});
+
+/* ==================================================================
+   APP / DASHBOARD  (rendering is driven by ITEMS + ACTIVE_LEVELS,
+   both built from the user's saved config)
+   ================================================================== */
+function isChecked(item){
+  const bucket = state.checkins[item.level] || {};
+  const periodBucket = bucket[PERIOD_KEY[item.level]] || {};
+  return !!periodBucket[item.id];
+}
+function isSlotChecked(item, slotKey){
+  const bucket = state.checkins[item.level] || {};
+  const periodBucket = bucket[slotKey] || {};
+  return !!periodBucket[item.id];
+}
+function toggleSlot(item, slotKey){
+  const lv = item.level;
+  if(!state.checkins[lv][slotKey]) state.checkins[lv][slotKey] = {};
+  state.checkins[lv][slotKey][item.id] = !state.checkins[lv][slotKey][item.id];
+  queueSave();
+}
+function toggleChecked(item){ toggleSlot(item, PERIOD_KEY[item.level]); }
+
+function levelCompletion(levelId){
+  const items = ITEMS.filter(i=>i.level===levelId);
+  if(items.length===0) return 0;
+  if(levelId==='quarterly'){
+    const slots = slotsFor(levelId);
+    const curIdx = currentIndexFor(levelId);
+    const elapsed = slots.slice(0, curIdx+1);
+    if(elapsed.length===0) return 0;
+    let done=0, total=0;
+    items.forEach(item=>{
+      elapsed.forEach(slot=>{
+        total++;
+        if(isSlotChecked(item, slot.key)) done++;
+      });
+    });
+    return total>0 ? done/total : 0;
+  }
+  const done = items.filter(isChecked).length;
+  return done/items.length;
+}
+function overallScoreAverage(){
+  const vals = Object.values(state.scores).filter(v=>typeof v==='number');
+  if(vals.length===0) return null;
+  return vals.reduce((a,b)=>a+b,0)/vals.length;
+}
+function computeStreak(){
+  const bucket = state.checkins.daily || {};
+  const totalDaily = ITEMS.filter(i=>i.level==='daily').length;
+  if(totalDaily===0) return 0;
+  let streak = 0;
+  let cursor = new Date();
+  for(let i=0;i<730;i++){
+    const key = isoDate(cursor);
+    const rec = bucket[key];
+    if(!rec){ break; }
+    const checkedCount = Object.values(rec).filter(Boolean).length;
+    const ratio = checkedCount/totalDaily;
+    if(ratio >= 0.6){ streak++; cursor.setDate(cursor.getDate()-1); } else { break; }
+  }
+  return streak;
+}
+
+const panels = {
+  overview: document.getElementById('panel-overview'),
+  daily: document.getElementById('panel-daily'),
+  weekly: document.getElementById('panel-weekly'),
+  monthly: document.getElementById('panel-monthly'),
+  quarterly: document.getElementById('panel-quarterly'),
+  annual: document.getElementById('panel-annual'),
+};
+const tabsEl = document.getElementById('tabs');
+
+function buildTabs(){
+  const defs = [{id:'overview', label:'Overview'}, ...ACTIVE_LEVELS.map(l=>({id:l.id,label:l.label}))];
+  tabsEl.innerHTML = defs.map(d=>{
+    const count = d.id==='overview' ? '' : `<span class="count">${ITEMS.filter(i=>i.level===d.id).length}</span>`;
+    return `<button data-tab="${d.id}" class="${d.id==='overview'?'active':''}">${d.label}${count}</button>`;
+  }).join('');
+  tabsEl.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click', ()=>selectTab(btn.dataset.tab));
+  });
+}
+function selectTab(tabId){
+  tabsEl.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.tab===tabId));
+  Object.entries(panels).forEach(([id,el])=>el.classList.toggle('active', id===tabId));
+}
+function checkIcon(){
+  return '<svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.2 11.5L13 4.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+
+function renderLevelPanel(levelId){
+  const level = LEVELS.find(l=>l.id===levelId);
+  const items = ITEMS.filter(i=>i.level===levelId);
+  const el = panels[levelId];
+  const gridSlot = (levelId==='quarterly');
+  const isWeekly = (levelId==='weekly');
+  const isMonthly = (levelId==='monthly');
+  const isDaily = (levelId==='daily');
+
+  if(items.length===0){
+    el.innerHTML = `
+      <div class="level-head"><h2>${level.label}</h2></div>
+      <div class="empty-state">
+        <div class="big">No ${level.label.toLowerCase()} items yet</div>
+        <p>Use "Edit your tracker" to add some.</p>
+      </div>
+    `;
+    return;
+  }
+
+  let progressLabel;
+  if(gridSlot){
+    progressLabel = `${Math.round(levelCompletion(levelId)*100)}% on track year-to-date`;
+  } else if(isDaily){
+    const doneCount = items.filter(i=>isSlotChecked(i, selectedDayKey)).length;
+    progressLabel = `${doneCount} / ${items.length} on ${selectedDayKey===todayISO() ? 'today' : formatDayLabel(selectedDayKey)}`;
+  } else if(isWeekly){
+    const doneCount = items.filter(i=>isSlotChecked(i, selectedWeekKey)).length;
+    progressLabel = `${doneCount} / ${items.length} for the week of ${formatWeekLabel(selectedWeekKey)}`;
+  } else if(isMonthly){
+    const doneCount = items.filter(i=>isSlotChecked(i, selectedMonthKey)).length;
+    progressLabel = `${doneCount} / ${items.length} in ${formatMonthLabel(selectedMonthKey)}`;
+  } else {
+    progressLabel = `${items.filter(isChecked).length} / ${items.length} this year`;
+  }
+
+  el.innerHTML = `
+    <div class="level-head">
+      <h2>${level.label}</h2>
+      <div class="level-progress">${progressLabel}</div>
+    </div>
+    ${isWeekly ? weekPickerHTML() : ''}
+    ${isMonthly ? monthPickerHTML() : ''}
+    ${isDaily ? dayPickerHTML() : ''}
+    <div class="item-list">
+      ${items.map(item=>itemCardHTML(item, gridSlot, isWeekly, isDaily, isMonthly)).join('')}
+    </div>
+  `;
+  attachItemHandlers(el, items);
+  if(isWeekly) attachWeekPickerHandlers(el);
+  if(isMonthly) attachMonthPickerHandlers(el);
+  if(isDaily) attachDayPickerHandlers(el);
+}
+
+function dayPickerHTML(){
+  const isToday = selectedDayKey === todayISO();
+  return `
+    <div class="week-picker">
+      <button class="reset-btn" id="dayPickerPrev" type="button" aria-label="Previous day">&larr; Prev</button>
+      <div class="week-picker-field">
+        <span class="k">Date</span>
+        <input type="date" id="dayPickerDate" value="${selectedDayKey}">
+      </div>
+      <button class="reset-btn" id="dayPickerNext" type="button" aria-label="Next day">Next &rarr;</button>
+      <span class="day-picker-label">${formatDayLabel(selectedDayKey)}${isToday ? ' · today' : ''}</span>
+      ${!isToday ? `<button class="reset-btn" id="dayPickerToday" type="button">Jump to today</button>` : ''}
+    </div>
+  `;
+}
+function attachDayPickerHandlers(container){
+  container.querySelector('#dayPickerPrev').addEventListener('click', ()=>{ selectedDayKey = shiftDayISO(selectedDayKey, -1); renderLevelPanel('daily'); });
+  container.querySelector('#dayPickerNext').addEventListener('click', ()=>{ selectedDayKey = shiftDayISO(selectedDayKey, 1); renderLevelPanel('daily'); });
+  container.querySelector('#dayPickerDate').addEventListener('change', (e)=>{ if(e.target.value){ selectedDayKey = e.target.value; renderLevelPanel('daily'); } });
+  const todayBtn = container.querySelector('#dayPickerToday');
+  if(todayBtn) todayBtn.addEventListener('click', ()=>{ selectedDayKey = todayISO(); renderLevelPanel('daily'); });
+}
+
+function weekPickerHTML(){
+  const isCurrent = selectedWeekKey === PERIOD_KEY.weekly;
+  return `
+    <div class="week-picker">
+      <button class="reset-btn" id="weekPickerPrev" type="button" aria-label="Previous week">&larr; Prev</button>
+      <span class="day-picker-label">${formatWeekLabel(selectedWeekKey)}${isCurrent ? ' · current week' : ''}</span>
+      <button class="reset-btn" id="weekPickerNext" type="button" aria-label="Next week">Next &rarr;</button>
+      ${!isCurrent ? `<button class="reset-btn" id="weekPickerToday" type="button">Jump to current week</button>` : ''}
+    </div>
+  `;
+}
+function attachWeekPickerHandlers(container){
+  container.querySelector('#weekPickerPrev').addEventListener('click', ()=>{ selectedWeekKey = shiftWeekKey(selectedWeekKey, -1); renderLevelPanel('weekly'); });
+  container.querySelector('#weekPickerNext').addEventListener('click', ()=>{ selectedWeekKey = shiftWeekKey(selectedWeekKey, 1); renderLevelPanel('weekly'); });
+  const todayBtn = container.querySelector('#weekPickerToday');
+  if(todayBtn) todayBtn.addEventListener('click', ()=>{ selectedWeekKey = PERIOD_KEY.weekly; renderLevelPanel('weekly'); });
+}
+
+function monthPickerHTML(){
+  const isCurrent = selectedMonthKey === PERIOD_KEY.monthly;
+  return `
+    <div class="week-picker">
+      <button class="reset-btn" id="monthPickerPrev" type="button" aria-label="Previous month">&larr; Prev</button>
+      <span class="day-picker-label">${formatMonthLabel(selectedMonthKey)}${isCurrent ? ' · current month' : ''}</span>
+      <button class="reset-btn" id="monthPickerNext" type="button" aria-label="Next month">Next &rarr;</button>
+      ${!isCurrent ? `<button class="reset-btn" id="monthPickerToday" type="button">Jump to current month</button>` : ''}
+    </div>
+  `;
+}
+function attachMonthPickerHandlers(container){
+  container.querySelector('#monthPickerPrev').addEventListener('click', ()=>{ selectedMonthKey = shiftMonthKey(selectedMonthKey, -1); renderLevelPanel('monthly'); });
+  container.querySelector('#monthPickerNext').addEventListener('click', ()=>{ selectedMonthKey = shiftMonthKey(selectedMonthKey, 1); renderLevelPanel('monthly'); });
+  const todayBtn = container.querySelector('#monthPickerToday');
+  if(todayBtn) todayBtn.addEventListener('click', ()=>{ selectedMonthKey = PERIOD_KEY.monthly; renderLevelPanel('monthly'); });
+}
+
+function slotGridHTML(item){
+  const slots = slotsFor(item.level);
+  return `
+    <div class="slot-grid slot-grid-${item.level}">
+      ${slots.map(s=>{
+        const on = isSlotChecked(item, s.key);
+        return `<button class="slot ${on?'on':''} ${s.current?'current':''}" data-slot="${s.key}" title="${s.label}${s.current?' (current)':''}">${s.label}</button>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+function metaHTML(item){
+  return item.note ? `<div class="item-meta"><span class="meta-bit"><span class="k">Note</span>${item.note}</span></div>` : '';
+}
+function nameRowHTML(item){
+  return `<div class="item-name-row"><span class="item-name">${item.name}</span></div>`;
+}
+function scoreRowHTML(item, score, pct){
+  return `
+    <div class="score-row">
+      <span class="k">Score</span>
+      <input type="range" min="1" max="10" step="1" value="${score||5}" style="--pct:${pct}%" data-action="score">
+      <span class="score-val">${score ? score+'/10' : '—'}</span>
+    </div>
+  `;
+}
+
+function itemCardHTML(item, gridSlot, isWeekly, isDaily, isMonthly){
+  const score = state.scores[item.id];
+  const pct = score ? ((score-1)/9*100) : 0;
+
+  if(gridSlot){
+    const slots = slotsFor(item.level);
+    const curIdx = currentIndexFor(item.level);
+    const doneThisSlot = isSlotChecked(item, slots[curIdx].key);
+    return `
+      <div class="item-card ${doneThisSlot?'done':''}" data-id="${item.id}">
+        <div class="item-top">
+          <div class="item-main" style="width:100%;">
+            ${nameRowHTML(item)}
+            ${metaHTML(item)}
+            ${slotGridHTML(item)}
+            ${scoreRowHTML(item, score, pct)}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  if(isWeekly){
+    const done = isSlotChecked(item, selectedWeekKey);
+    return `
+      <div class="item-card ${done?'done':''}" data-id="${item.id}">
+        <div class="item-top">
+          <button class="check-btn" data-action="toggle-week" data-slot="${selectedWeekKey}" aria-label="Mark ${item.name} done">${checkIcon()}</button>
+          <div class="item-main">
+            ${nameRowHTML(item)}
+            ${metaHTML(item)}
+            ${scoreRowHTML(item, score, pct)}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  if(isMonthly){
+    const done = isSlotChecked(item, selectedMonthKey);
+    return `
+      <div class="item-card ${done?'done':''}" data-id="${item.id}">
+        <div class="item-top">
+          <button class="check-btn" data-action="toggle-month" data-slot="${selectedMonthKey}" aria-label="Mark ${item.name} done">${checkIcon()}</button>
+          <div class="item-main">
+            ${nameRowHTML(item)}
+            ${metaHTML(item)}
+            ${scoreRowHTML(item, score, pct)}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  if(isDaily){
+    const done = isSlotChecked(item, selectedDayKey);
+    return `
+      <div class="item-card ${done?'done':''}" data-id="${item.id}">
+        <div class="item-top">
+          <button class="check-btn" data-action="toggle-day" data-slot="${selectedDayKey}" aria-label="Mark ${item.name} done">${checkIcon()}</button>
+          <div class="item-main">
+            ${nameRowHTML(item)}
+            ${metaHTML(item)}
+            ${scoreRowHTML(item, score, pct)}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  const done = isChecked(item);
+  return `
+    <div class="item-card ${done?'done':''}" data-id="${item.id}">
+      <div class="item-top">
+        <button class="check-btn" data-action="toggle" aria-label="Mark ${item.name} done">${checkIcon()}</button>
+        <div class="item-main">
+          ${nameRowHTML(item)}
+          ${metaHTML(item)}
+          ${scoreRowHTML(item, score, pct)}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function attachItemHandlers(container, items){
+  container.querySelectorAll('.item-card').forEach(card=>{
+    const id = card.dataset.id;
+    const item = items.find(i=>i.id===id) || ITEMS.find(i=>i.id===id);
+    if(!item) return;
+    const toggleBtn = card.querySelector('[data-action="toggle"]');
+    if(toggleBtn){ toggleBtn.addEventListener('click', ()=>{ toggleChecked(item); card.classList.toggle('done'); renderAll(); }); }
+    const toggleWeekBtn = card.querySelector('[data-action="toggle-week"]');
+    if(toggleWeekBtn){ toggleWeekBtn.addEventListener('click', ()=>{ toggleSlot(item, toggleWeekBtn.dataset.slot); card.classList.toggle('done'); renderOverview(); renderLevelPanel('weekly'); }); }
+    const toggleMonthBtn = card.querySelector('[data-action="toggle-month"]');
+    if(toggleMonthBtn){ toggleMonthBtn.addEventListener('click', ()=>{ toggleSlot(item, toggleMonthBtn.dataset.slot); card.classList.toggle('done'); renderOverview(); renderLevelPanel('monthly'); }); }
+    const toggleDayBtn = card.querySelector('[data-action="toggle-day"]');
+    if(toggleDayBtn){ toggleDayBtn.addEventListener('click', ()=>{ toggleSlot(item, toggleDayBtn.dataset.slot); card.classList.toggle('done'); renderOverview(); renderLevelPanel('daily'); }); }
+    card.querySelectorAll('.slot').forEach(slotBtn=>{
+      slotBtn.addEventListener('click', ()=>{ toggleSlot(item, slotBtn.dataset.slot); renderAll(); });
+    });
+    const slider = card.querySelector('[data-action="score"]');
+    const valEl = card.querySelector('.score-val');
+    slider.addEventListener('input', ()=>{
+      const v = parseInt(slider.value,10);
+      slider.style.setProperty('--pct', ((v-1)/9*100)+'%');
+      valEl.textContent = v+'/10';
+    });
+    slider.addEventListener('change', ()=>{ state.scores[item.id] = parseInt(slider.value,10); queueSave(); renderOverview(); });
+  });
+}
+
+function renderGlance(){
+  const items = ITEMS.filter(i=>i.level==='daily');
+  const list = document.getElementById('glanceList');
+  list.innerHTML = items.map(item=>{
+    const done = isChecked(item);
+    return `<div class="glance-item ${done?'done':''}" data-id="${item.id}">
+      <button class="check-btn" data-action="toggle" style="width:18px;height:18px;border-radius:5px;">${checkIcon()}</button>
+      <span class="gi-name">${item.name}</span>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.glance-item').forEach(row=>{
+    const item = items.find(i=>i.id===row.dataset.id);
+    row.querySelector('[data-action="toggle"]').addEventListener('click', ()=>{ toggleChecked(item); renderAll(); });
+  });
+}
+
+function renderRings(){
+  const svg = document.getElementById('ringsSvg');
+  const legend = document.getElementById('ringsLegend');
+  if(ACTIVE_LEVELS.length===0){ svg.innerHTML=''; legend.innerHTML='<div class="legend-row">Nothing set up yet.</div>'; return; }
+  const cx=140, cy=140, sw=13, gap=4;
+  let radius = 34;
+  const parts = [];
+  const legendRows = [];
+  ACTIVE_LEVELS.forEach(level=>{
+    const pct = levelCompletion(level.id);
+    const circumference = 2*Math.PI*radius;
+    const dash = circumference*pct;
+    parts.push(`
+      <circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="${level.color}22" stroke-width="${sw}"/>
+      <circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="${level.color}" stroke-width="${sw}"
+        stroke-dasharray="${dash} ${circumference-dash}" stroke-linecap="round"
+        transform="rotate(-90 ${cx} ${cy})"/>
+    `);
+    legendRows.push({label:level.label, color:level.color, pct});
+    radius += sw+gap;
+  });
+  svg.innerHTML = parts.join('');
+  legend.innerHTML = legendRows.map(l=>`
+    <div class="legend-row">
+      <span class="legend-dot" style="background:${l.color}"></span>
+      <span class="legend-label">${l.label}</span>
+      <span class="legend-val">${Math.round(l.pct*100)}%</span>
+    </div>
+  `).join('');
+}
+
+function renderOverview(){
+  renderRings();
+  const dailyActive = ACTIVE_LEVELS.some(l=>l.id==='daily');
+  document.getElementById('glanceCard').style.display = dailyActive ? 'block' : 'none';
+  document.getElementById('journalCard').style.display = dailyActive ? 'block' : 'none';
+  document.getElementById('statTodayCard').style.display = dailyActive ? 'block' : 'none';
+  document.getElementById('streakPill').style.display = dailyActive ? 'flex' : 'none';
+  if(dailyActive){
+    renderGlance();
+    document.getElementById('statToday').textContent = Math.round(levelCompletion('daily')*100)+'%';
+    document.getElementById('streakNum').textContent = computeStreak();
+  }
+  const avg = overallScoreAverage();
+  document.getElementById('statScore').textContent = avg ? avg.toFixed(1)+' / 10' : '—';
+  document.getElementById('statTotal').textContent = ITEMS.length;
+  document.getElementById('statTotalHint').textContent = ACTIVE_LEVELS.map(l=>l.label.toLowerCase()).join(', ') || 'nothing yet';
+}
+
+function renderAll(){
+  renderOverview();
+  ACTIVE_LEVELS.forEach(l=>renderLevelPanel(l.id));
+}
+
+function initJournal(){
+  const dailyActive = ACTIVE_LEVELS.some(l=>l.id==='daily');
+  if(!dailyActive) return;
+  const key = todayISO();
+  const box = document.getElementById('journalToday');
+  box.value = state.journal[key] || '';
+  let t;
+  box.addEventListener('input', ()=>{
+    clearTimeout(t);
+    document.getElementById('journalSaveHint').textContent = 'Saving…';
+    t = setTimeout(()=>{
+      state.journal[key] = box.value;
+      queueSave();
+      document.getElementById('journalSaveHint').textContent = 'Autosaves as you type';
+    }, 400);
+  });
+}
+
+function initHeader(){
+  const d = new Date();
+  const opts = {weekday:'long', month:'long', day:'numeric', year:'numeric'};
+  document.getElementById('todayBadge').textContent = d.toLocaleDateString('en-US', opts);
+}
+
+/* ---------------- Export / Import ---------------- */
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  try{
+    const payload = { app:'daily-growth-tracker', exportedAt:new Date().toISOString(), config, state };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `daily-tracker-backup-${todayISO()}.json`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }catch(e){ console.error('Export failed', e); alert('Export failed — see console for details.'); }
+});
+const importFileInput = document.getElementById('importFile');
+document.getElementById('importBtn').addEventListener('click', ()=>{ importFileInput.value=''; importFileInput.click(); });
+importFileInput.addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    let parsed;
+    try{ parsed = JSON.parse(reader.result); }catch(err){ alert('That file is not valid JSON — import cancelled.'); return; }
+    const incomingState = parsed && parsed.state ? parsed.state : null;
+    const incomingConfig = parsed && parsed.config ? parsed.config : null;
+    if(!incomingState || !incomingState.checkins){ alert("This doesn't look like a tracker backup file — import cancelled."); return; }
+    const doMerge = confirm('Import this backup?\n\nOK = merge with what\'s on this device (imported check-ins/scores win on conflicts)\nCancel = choose to replace everything instead');
+    if(doMerge){
+      mergeState(incomingState);
+      if(incomingConfig){
+        // add any items from the backup that aren't already in the current config
+        const existingIds = new Set(config.items.map(it=>it.id));
+        incomingConfig.items.forEach(it=>{ if(!existingIds.has(it.id)) config.items.push(it); });
+        incomingConfig.levels.forEach(lv=>{ if(!config.levels.includes(lv)) config.levels.push(lv); });
+        config.levels = LEVEL_ORDER.filter(lv=>config.levels.includes(lv));
+        saveConfig(config);
+        applyConfig();
+      }
+    } else {
+      const doReplace = confirm('Replace ALL current data on this device with the imported backup? This cannot be undone.');
+      if(!doReplace) return;
+      state = Object.assign({checkins:{daily:{},weekly:{},monthly:{},quarterly:{},annual:{}},scores:{},journal:{}}, incomingState);
+      if(incomingConfig){ config = incomingConfig; saveConfig(config); applyConfig(); }
+    }
+    queueSave();
+    renderAll();
+    initJournal();
+    alert('Import complete.');
+  };
+  reader.readAsText(file);
+});
+function mergeState(incoming){
+  for(const lv of LEVEL_ORDER){
+    const incLevel = (incoming.checkins && incoming.checkins[lv]) || {};
+    if(!state.checkins[lv]) state.checkins[lv] = {};
+    for(const periodKey in incLevel){
+      state.checkins[lv][periodKey] = Object.assign({}, state.checkins[lv][periodKey]||{}, incLevel[periodKey]);
+    }
+  }
+  state.scores = Object.assign({}, state.scores, incoming.scores||{});
+  state.journal = Object.assign({}, state.journal, incoming.journal||{});
+}
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  if(!confirm('This clears all check-ins, scores and journal entries — but keeps your tracker setup. Continue?')) return;
+  state = { checkins:{daily:{},weekly:{},monthly:{},quarterly:{},annual:{}}, scores:{}, journal:{} };
+  try{ localStorage.setItem(STATE_KEY, JSON.stringify(state)); }catch(e){ console.error(e); }
+  renderAll();
+  initJournal();
+});
+
+document.getElementById('editTrackerBtn').addEventListener('click', ()=>{
+  document.getElementById('appScreen').style.display = 'none';
+  document.getElementById('setupScreen').style.display = 'block';
+  initSetup(config);
+});
+
+/* ---------------- Boot ---------------- */
+function applyConfig(){
+  ITEMS = config.items;
+  ACTIVE_LEVELS = LEVEL_ORDER.filter(lv=>config.levels.includes(lv)).map(id=>LEVELS.find(l=>l.id===id));
+  selectedWeekKey = PERIOD_KEY.weekly;
+  selectedMonthKey = PERIOD_KEY.monthly;
+  selectedDayKey = PERIOD_KEY.daily;
+}
+
+async function bootApp(){
+  applyConfig();
+  buildTabs();
+  initHeader();
+  loadState();
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  renderAll();
+  initJournal();
+}
+
+(function init(){
+  config = loadConfig();
+  if(config && config.items.length>0){
+    document.getElementById('setupScreen').style.display = 'none';
+    document.getElementById('appScreen').style.display = 'block';
+    bootApp();
+  } else {
+    document.getElementById('appScreen').style.display = 'none';
+    document.getElementById('setupScreen').style.display = 'block';
+    initSetup(null);
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "Growth Daily",
+  "short_name": "Growth Daily",
+  "description": "Personal growth, productivity and accountability tracker — set up your own daily, weekly, monthly, quarterly, and annual habits.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#EEF1E6",
+  "theme_color": "#EEF1E6",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "icon.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
