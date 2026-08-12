@@ -36,12 +36,12 @@ you keep are preserved; only items you remove stop being tracked.
 
 | File | Purpose |
 |---|---|
-| `routine_dashboard.html` | The app itself. Everything — layout, logic, styling — lives in this one file. |
+| `index.html` | The app itself. Everything — layout, logic, styling — lives in this one file. |
 | `manifest.json` | Tells your phone this is an installable app (name, icon, colors). |
 | `icon.png` | The home-screen icon. Replace this with your own photo if you like (see below). |
 | `make_icon.py` | Optional helper script that crops any photo into a proper square icon. |
 
-You need **all three** of `routine_dashboard.html`, `manifest.json`, and
+You need **all three** of `index.html`, `manifest.json`, and
 `icon.png` together when you deploy — the HTML file looks for the other two
 by name in the same folder.
 
@@ -55,13 +55,13 @@ way to get a URL is **Netlify Drop**, which needs no account and no coding.
 
 1. Go to **[app.netlify.com/drop](https://app.netlify.com/drop)** in your
    computer's browser.
-2. Drag all three files — `routine_dashboard.html`, `manifest.json`,
+2. Drag all three files — `index.html`, `manifest.json`,
    `icon.png` — into the drop zone at once.
 3. Netlify uploads them and gives you a URL that looks like
    `https://random-name-123.netlify.app`.
 4. Click through to that URL and confirm you land on the tracker (not a
    blank page or file listing). If it opens a folder listing instead, click
-   `routine_dashboard.html` in the list, then bookmark **that exact page**.
+   `index.html` in the list, then bookmark **that exact page**.
 
 > **Keep this URL.** It's the one you'll open on your phone and the one
 > you'll bookmark. If you ever redeploy to a *different* URL, your saved
@@ -72,13 +72,17 @@ way to get a URL is **Netlify Drop**, which needs no account and no coding.
 If you'd rather have a permanent, versioned home for it (and you're already
 comfortable with GitHub):
 
-1. Create a new **public** repository, e.g. `rule-of-life-tracker`.
-2. Upload the three files to the repository root (Add file → Upload files).
+1. Create a new **public** repository, e.g. `Growth-Daily`.
+2. Upload `index.html`, `manifest.json`, and `icon.png` to the repository root.
 3. Go to **Settings → Pages**.
 4. Under "Build and deployment", set **Source** to `Deploy from a branch`,
    branch `main`, folder `/ (root)`. Save.
 5. Wait a minute, then your app is live at:
-   `https://<your-username>.github.io/rule-of-life-tracker/routine_dashboard.html`
+   `https://<your-username>.github.io/Growth-Daily/`
+
+   Because the file is named `index.html`, GitHub Pages serves it
+   automatically at that root URL — no filename needed, and it won't fall
+   back to showing this README instead.
 
 GitHub Pages is free forever for public repos and gives you real version
 history if you keep editing the tracker over time.
@@ -179,7 +183,7 @@ that file on the new install to carry your setup and history over.
 ## Updating the tracker later
 
 If you add or change items again (new habits, new programs, edited
-timelines), you'll get an updated `routine_dashboard.html`. To deploy the
+timelines), you'll get an updated `index.html`. To deploy the
 update:
 
 - **Netlify Drop**: drag the new files into
@@ -204,4 +208,5 @@ URL across updates is what keeps your history intact.
 | Home screen icon didn't update after swapping the file | Remove the installed icon and re-add it — phones cache icons |
 | "Add to Home Screen" isn't full-screen / shows browser bar | On iPhone, you opened it in a non-Safari browser |
 | My check-ins disappeared | You're opening a different URL than before, or the browser's site data was cleared |
-| Page shows a file listing instead of the app | Link directly to `routine_dashboard.html` in that folder, and bookmark that exact link |
+| Page shows a file listing instead of the app | Link directly to `index.html` in that folder, and bookmark that exact link |
+| The page shows the README instead of the app | The file wasn't named `index.html`, or you installed from the GitHub repo page (`github.com/...`) instead of the Pages URL (`<username>.github.io/...`) |
